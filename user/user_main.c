@@ -46,7 +46,7 @@
 #include "ssl/cert.h"
 #include "ssl/private_key.h"
 #else
-    
+
 #ifdef CLIENT_SSL_ENABLE
 unsigned char *default_certificate;
 unsigned int default_certificate_len = 0;
@@ -129,7 +129,7 @@ void user_init(void)
 {
     printf("SDK version:%s,%u\n", system_get_sdk_version(),__LINE__ );
     wifi_set_opmode(STATIONAP_MODE);
-    
+
 #if ESP_PLATFORM
     /*Initialization of the peripheral drivers*/
     /*For light demo , it is user_light_init();*/
@@ -141,7 +141,7 @@ void user_init(void)
     /*Listen to the port 1025, as well as udp broadcast.
     /*If receive a string of device_find_request, it rely its IP address and MAC.*/
     user_devicefind_start();
-    
+
 #if WEB_SERVICE
     /*Establish a TCP server for http(with JSON) POST or GET command to communicate with the device.*/
     /*You can find the command in "2B-SDK-Espressif IoT Demo.pdf" to see the details.*/
@@ -159,5 +159,3 @@ void user_init(void)
 #endif
 
 }
-
-

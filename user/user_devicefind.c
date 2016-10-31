@@ -51,7 +51,7 @@ const char *device_find_response_ok = "I'm Flammable Gas.";
 #define len_mac_msg 70
 #define len_ip_rsp  50
 /*---------------------------------------------------------------------------*/
-LOCAL int32 sock_fd; 
+LOCAL int32 sock_fd;
 
 /******************************************************************************
  * FunctionName : user_devicefind_data_process
@@ -61,26 +61,26 @@ LOCAL int32 sock_fd;
  *                length -- The length of received data
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 user_devicefind_data_process(char *pusrdata, unsigned short length, struct sockaddr_in *premote_addr)
 {
     char *DeviceBuffer;//40
     char *Device_mac_buffer;//60
     char hwaddr[6];
     int   len;
-    
+
     struct ip_info ipconfig;
     struct ip_info ipconfig_r;
-    
+
     if (pusrdata == NULL) {
         return;
     }
 
     if (wifi_get_opmode() != STATION_MODE) {
-        
+
         wifi_get_ip_info(SOFTAP_IF, &ipconfig);
         wifi_get_macaddr(SOFTAP_IF, hwaddr);
-        
+
         inet_addr_to_ipaddr(&ipconfig_r.ip,&premote_addr->sin_addr);
         if(!ip_addr_netcmp(&ipconfig_r.ip, &ipconfig.ip, &ipconfig.netmask)) {
             //printf("udpclient connect with sta\n");
@@ -91,7 +91,7 @@ user_devicefind_data_process(char *pusrdata, unsigned short length, struct socka
         wifi_get_ip_info(STATION_IF, &ipconfig);
         wifi_get_macaddr(STATION_IF, hwaddr);
     }
-    
+
     //DF_DEBUG("%s\n", pusrdata);
     DeviceBuffer = (char*)malloc(len_ip_rsp);
     memset(DeviceBuffer, 0, len_ip_rsp);
@@ -105,13 +105,13 @@ user_devicefind_data_process(char *pusrdata, unsigned short length, struct socka
         DF_DEBUG("%s %d\n", DeviceBuffer,length);
 
         sendto(sock_fd,DeviceBuffer, length, 0, (struct sockaddr *)premote_addr, sizeof(struct sockaddr_in));
-        
+
     } else if (length == (strlen(device_find_request) + 18)) {
-    
+
         Device_mac_buffer = (char*)malloc(len_mac_msg);
         memset(Device_mac_buffer, 0, len_mac_msg);
         sprintf(Device_mac_buffer, "%s " MACSTR , device_find_request, MAC2STR(hwaddr));
-        
+
         if (strncmp(Device_mac_buffer, pusrdata, strlen(device_find_request) + 18) == 0){
 
             sprintf(DeviceBuffer, "%s" MACSTR " " IPSTR, device_find_response_ok,
@@ -119,15 +119,15 @@ user_devicefind_data_process(char *pusrdata, unsigned short length, struct socka
 
             length = strlen(DeviceBuffer);
             DF_DEBUG("%s %d\n", DeviceBuffer,length);
-            
+
             sendto(sock_fd,DeviceBuffer, length, 0, (struct sockaddr *)premote_addr, sizeof(struct sockaddr_in));
-        } 
+        }
 
         if(Device_mac_buffer)free(Device_mac_buffer);
     }
 
     if(DeviceBuffer)free(DeviceBuffer);
-    
+
 }
 
 /******************************************************************************
@@ -136,16 +136,16 @@ user_devicefind_data_process(char *pusrdata, unsigned short length, struct socka
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 user_devicefind_task(void *pvParameters)
 {
     struct sockaddr_in server_addr;
     int32 ret;
-    
+
     struct sockaddr_in from;
     socklen_t   fromlen;
     struct ip_info ipconfig;
-    
+
     char  *udp_msg;
     bool ValueFromReceive = false;
     portBASE_TYPE xStatus;
@@ -155,7 +155,7 @@ user_devicefind_task(void *pvParameters)
 
     memset(&ipconfig, 0, sizeof(ipconfig));
     memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;       
+    server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(UDF_SERVER_PORT);
     server_addr.sin_len = sizeof(server_addr);
@@ -180,7 +180,7 @@ user_devicefind_task(void *pvParameters)
 
 
     while(1){
-        
+
         xStatus = xQueueReceive(QueueStop,&ValueFromReceive,0);
         if ( pdPASS == xStatus && TRUE == ValueFromReceive){
             os_printf("user_devicefind_task rcv exit signal!\n");
@@ -189,7 +189,7 @@ user_devicefind_task(void *pvParameters)
 
         memset(udp_msg, 0, len_udp_msg);
         memset(&from, 0, sizeof(from));
-        
+
         setsockopt(sock_fd,SOL_SOCKET,SO_RCVTIMEO,(char *)&nNetTimeout,sizeof(int));
         fromlen = sizeof(struct sockaddr_in);
         ret = recvfrom(sock_fd, (u8 *)udp_msg, len_udp_msg, 0,(struct sockaddr *)&from,(socklen_t *)&fromlen);
@@ -197,7 +197,7 @@ user_devicefind_task(void *pvParameters)
             os_printf("recieve from->port %d  %s\n",ntohs(from.sin_port),inet_ntoa(from.sin_addr));
             user_devicefind_data_process(udp_msg,ret,&from);
         }
-        
+
         if(stack_counter++ ==1){
             stack_counter=0;
             DF_DEBUG("user_devicefind_task %d word left\n",uxTaskGetStackHighWaterMark(NULL));
@@ -214,7 +214,7 @@ user_devicefind_task(void *pvParameters)
 }
 
 /*
-LOCAL void  
+LOCAL void
 user_devicefind_task1(void *pvParameters)
 {
     int stack_counter =0;
@@ -235,7 +235,7 @@ void   user_devicefind_start(void)
 
     if (QueueStop != NULL)
         xTaskCreate(user_devicefind_task, "user_devicefind", 256, NULL, 3, NULL);
-    
+
 }
 
 sint8   user_devicefind_stop(void)
@@ -254,4 +254,3 @@ sint8   user_devicefind_stop(void)
         return pdPASS;
     }
 }
-
