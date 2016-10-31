@@ -15,6 +15,14 @@ TARGET = eagle
 #FLAVOR = release
 FLAVOR = debug
 
+BIN_PATH?=.output/bin
+
+BOOT?=none
+APP?=0
+SPI_SPEED?=40
+SPI_MODE?=QIO
+SPI_SIZE_MAP?=0
+
 #EXTRA_CCFLAGS += -u
 
 ifndef PDIR # {
@@ -25,6 +33,7 @@ SUBDIRS=    \
 	user    \
 	driver  \
 	upgrade
+#	gdbstub
 
 endif # } PDIR
 
@@ -58,6 +67,7 @@ COMPONENTS_eagle.app.v6 = \
 	user/libuser.a  \
 	driver/libdriver.a \
 	upgrade/libupgrade.a
+#	gdbstub/libgdbstub.a
 
 LINKFLAGS_eagle.app.v6 = \
 	-L$(SDK_PATH)/lib        \
@@ -68,6 +78,7 @@ LINKFLAGS_eagle.app.v6 = \
     -u call_user_start	\
 	-Wl,-static						\
 	-Wl,--start-group					\
+	-lc \
 	-lcirom \
 	-lmirom	\
 	-lgcc					\
