@@ -125,6 +125,10 @@ uint32 user_rf_cal_sector_set(void)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
+static os_timer_t some_timer;
+
+void readDHT(void *arg);
+
 void user_init(void)
 {
     printf("SDK version:%s,%u\n", system_get_sdk_version(),__LINE__ );
@@ -157,5 +161,20 @@ void user_init(void)
 	/*Initialize webserver*/
 	httpdInit(builtInUrls, 80);
 #endif
+
+        //Set GPIO2 to output mode
+        PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
+        PIN_PULLUP_EN(PERIPHS_IO_MUX_GPIO2_U);
+
+        os_timer_disarm(&some_timer);
+
+        //Setup timer
+        os_timer_setfn(&some_timer, (os_timer_func_t *)readDHT, NULL);
+
+        //Arm the timer
+        //&some_timer is the pointer
+        //1000 is the fire time in ms
+        //0 for once and 1 for repeating
+        os_timer_arm(&some_timer, 2 * 1000, 1);
 
 }
