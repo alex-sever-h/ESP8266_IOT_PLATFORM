@@ -21,7 +21,7 @@ BOOT?=none
 APP?=0
 SPI_SPEED?=40
 SPI_MODE?=QIO
-SPI_SIZE_MAP?=0
+SPI_SIZE_MAP?=2
 
 #EXTRA_CCFLAGS += -u
 
@@ -29,8 +29,7 @@ ifndef PDIR # {
 GEN_IMAGES= eagle.app.v6.out
 GEN_BINS= eagle.app.v6.bin
 SPECIAL_MKTARGETS=$(APP_MKTARGETS)
-SUBDIRS=    \
-	user    \
+SUBDIRS=user	\
 	driver  \
 	upgrade
 #	gdbstub
@@ -62,7 +61,7 @@ libesphttpd/libesphttpd.a: libesphttpd/Makefile
 
 libesphttpd/libwebpages-espfs.a: libesphttpd/Makefile
 	make -C libesphttpd libwebpages-espfs.a
-	
+
 COMPONENTS_eagle.app.v6 = \
 	user/libuser.a  \
 	driver/libdriver.a \
@@ -73,11 +72,12 @@ LINKFLAGS_eagle.app.v6 = \
 	-L$(SDK_PATH)/lib        \
 	-Wl,--gc-sections   \
 	-nostdlib	\
-    -T$(LD_FILE)   \
+	-T$(LD_FILE)   \
 	-Wl,--no-check-sections	\
-    -u call_user_start	\
+	-u call_user_start	\
 	-Wl,-static						\
 	-Wl,--start-group					\
+	-lminic \
 	-lc \
 	-lcirom \
 	-lmirom	\
@@ -154,3 +154,10 @@ sinclude $(SDK_PATH)/Makefile
 .PHONY: FORCE
 FORCE:
 
+
+flash: all
+	esptool.py --port /dev/ttyUSB0 --baud 921000 write_flash \
+		0x00000 $(BIN_PATH)/eagle.flash.bin \
+		0x20000 $(BIN_PATH)/eagle.irom0text.bin \
+		0xFC000 $(SDK_PATH)/bin/esp_init_data_default.bin \
+		0xFE000 $(SDK_PATH)/bin/blank.bin
