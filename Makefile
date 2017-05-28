@@ -156,7 +156,7 @@ FORCE:
 
 
 flash: all
-	esptool.py --port /dev/ttyUSB0 --baud 921000 write_flash \
+	esptool.py --port /dev/ttyUSB0 --baud 112500 write_flash \
 		0x00000 $(BIN_PATH)/eagle.flash.bin \
 		0x20000 $(BIN_PATH)/eagle.irom0text.bin \
 		0xFC000 $(SDK_PATH)/bin/esp_init_data_default.bin \

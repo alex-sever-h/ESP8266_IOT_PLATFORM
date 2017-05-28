@@ -166,15 +166,15 @@ void user_init(void)
         PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
         PIN_PULLUP_EN(PERIPHS_IO_MUX_GPIO2_U);
 
-        os_timer_disarm(&some_timer);
+//        os_timer_disarm(&some_timer);
 
         //Setup timer
-        os_timer_setfn(&some_timer, (os_timer_func_t *)readDHT, NULL);
+//        os_timer_setfn(&some_timer, (os_timer_func_t *)readDHT, NULL);
 
         //Arm the timer
         //&some_timer is the pointer
         //1000 is the fire time in ms
         //0 for once and 1 for repeating
-        os_timer_arm(&some_timer, 2 * 1000, 1);
+//        os_timer_arm(&some_timer, 2 * 1000, 1);
 
 }

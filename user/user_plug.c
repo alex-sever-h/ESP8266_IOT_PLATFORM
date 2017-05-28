@@ -25,7 +25,7 @@ LOCAL uint8 link_led_level = 0;
  * Parameters   : none
  * Returns      : uint8 - plug's status
 *******************************************************************************/
-uint8  
+uint8
 user_plug_get_status(void)
 {
     return plug_param.status;
@@ -37,7 +37,7 @@ user_plug_get_status(void)
  * Parameters   : uint8 - status
  * Returns      : none
 *******************************************************************************/
-void  
+void
 user_plug_set_status(bool status)
 {
     if (status != plug_param.status) {
@@ -58,7 +58,7 @@ user_plug_set_status(bool status)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 user_plug_short_press(void)
 {
     user_plug_set_status((~plug_param.status) & 0x01);
@@ -73,13 +73,13 @@ user_plug_short_press(void)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 user_plug_long_press(void)
 {
     int boot_flag=12345;
     user_esp_platform_set_active(0);
     system_restore();
-    
+
     system_rtc_mem_write(70, &boot_flag, sizeof(boot_flag));
     printf("long_press boot_flag %d  \n",boot_flag);
     system_rtc_mem_read(70, &boot_flag, sizeof(boot_flag));
@@ -87,7 +87,7 @@ user_plug_long_press(void)
 
 #if RESTORE_KEEP_TIMER
     user_platform_timer_bkup();
-#endif 
+#endif
 
     system_restart();
 }
@@ -98,20 +98,20 @@ user_plug_long_press(void)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 user_link_led_init(void)
 {
     PIN_FUNC_SELECT(PLUG_LINK_LED_IO_MUX, PLUG_LINK_LED_IO_FUNC);
 }
 
-LOCAL void  
+LOCAL void
 user_link_led_timer_cb(void)
 {
     link_led_level = (~link_led_level) & 0x01;
     GPIO_OUTPUT_SET(GPIO_ID_PIN(PLUG_LINK_LED_IO_NUM), link_led_level);
 }
 
-void  
+void
 user_link_led_timer_init(int time)
 {
     os_timer_disarm(&link_led_timer);
@@ -121,7 +121,7 @@ user_link_led_timer_init(int time)
     GPIO_OUTPUT_SET(GPIO_ID_PIN(PLUG_LINK_LED_IO_NUM), link_led_level);
 }
 /*
-void  
+void
 user_link_led_timer_done(void)
 {
     os_timer_disarm(&link_led_timer);
@@ -135,7 +135,7 @@ user_link_led_timer_done(void)
  * Parameters   : mode, on/off/xhz
  * Returns      : none
 *******************************************************************************/
-void  
+void
 user_link_led_output(uint8 mode)
 {
 
@@ -144,16 +144,16 @@ user_link_led_output(uint8 mode)
             os_timer_disarm(&link_led_timer);
             GPIO_OUTPUT_SET(GPIO_ID_PIN(PLUG_LINK_LED_IO_NUM), 1);
             break;
-    
+
         case LED_ON:
             os_timer_disarm(&link_led_timer);
             GPIO_OUTPUT_SET(GPIO_ID_PIN(PLUG_LINK_LED_IO_NUM), 0);
             break;
-    
+
         case LED_1HZ:
             user_link_led_timer_init(1000);
             break;
-    
+
         case LED_5HZ:
             user_link_led_timer_init(200);
             break;
@@ -166,7 +166,7 @@ user_link_led_output(uint8 mode)
             printf("ERROR:LED MODE WRONG!\n");
             break;
     }
-    
+
 }
 
 /******************************************************************************
@@ -175,10 +175,36 @@ user_link_led_output(uint8 mode)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-BOOL  
+BOOL
 user_get_key_status(void)
 {
     return get_key_status(single_key[0]);
+}
+
+#define BUTTON_GPIO 15
+
+void button_task (void * unused)
+{
+    printf("Button started! \n");
+    while (1)
+    {
+        GPIO_AS_INPUT(1 << BUTTON_GPIO);
+        GPIO_DIS_OUTPUT(BUTTON_GPIO);
+
+        if(GPIO_INPUT_GET(BUTTON_GPIO))
+        {
+            printf("Button pressed! \n");
+            vTaskDelay(1/portTICK_RATE_MS);
+            if(GPIO_INPUT_GET(BUTTON_GPIO))
+            {
+                plug_param.status = !plug_param.status;
+                printf("Button pressed! \n");
+            }
+        }
+
+        vTaskDelay(100/portTICK_RATE_MS);
+        printf("Button loop!  %X \n", gpio_input_get());
+    }
 }
 
 /******************************************************************************
@@ -187,7 +213,7 @@ user_get_key_status(void)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-void  
+void
 user_plug_init(void)
 {
     printf("user_plug_init start!\n");
@@ -215,6 +241,8 @@ user_plug_init(void)
     }
 
     PLUG_STATUS_OUTPUT(PLUG_RELAY_LED_IO_NUM, plug_param.status);
+
+    xTaskCreate(button_task, "button_task", 256, NULL, 3, NULL);
+
 }
 #endif
-
