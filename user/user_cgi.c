@@ -3,7 +3,7 @@
  *
  * FileName: user_cgi.c
  *
- * Description: Specialized functions that provide an API into the 
+ * Description: Specialized functions that provide an API into the
  * functionality this ESP provides.
  *
  *******************************************************************************/
@@ -59,7 +59,7 @@ LOCAL struct softap_config *ap_conf;
  * Returns      : result
 * { "status":"200", "user_bin":"userx.bin" }
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 user_binfo_get(cJSON *pcjson, const char* pname)
 {
     char buff[12];
@@ -85,7 +85,7 @@ user_binfo_get(cJSON *pcjson, const char* pname)
 {"Version":{"hardware":"0.1","sdk_version":"1.1.2","iot_version":"v1.0.5t23701(a)"},
 "Device":{"product":"Plug","manufacturer":"Espressif Systems"}}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 system_info_get(cJSON *pcjson, const char* pname )
 {
     char buff[16]={0};
@@ -96,7 +96,7 @@ system_info_get(cJSON *pcjson, const char* pname )
         return -1;
     }
     cJSON_AddItemToObject(pcjson, "Version", pSubJson_Version);
-    
+
     cJSON * pSubJson_Device = cJSON_CreateObject();
     if(NULL == pSubJson_Device){
         printf("pSubJson_Device creat fail\n");
@@ -113,7 +113,7 @@ system_info_get(cJSON *pcjson, const char* pname )
     sprintf(buff,"%s%d.%d.%dt%d(%s)",VERSION_TYPE,IOT_VERSION_MAJOR,\
     IOT_VERSION_MINOR,IOT_VERSION_REVISION,device_type,UPGRADE_FALG);
     cJSON_AddStringToObject(pSubJson_Version,"iot_version",buff);
-    
+
 
     cJSON_AddStringToObject(pSubJson_Device,"manufacture","Espressif Systems");
 #if SENSOR_DEVICE
@@ -124,7 +124,7 @@ system_info_get(cJSON *pcjson, const char* pname )
 #endif
 #endif
 #if PLUG_DEVICE
-    cJSON_AddStringToObject(pSubJson_Device,"product", "Plug");
+    cJSON_AddStringToObject(pSubJson_Device,"product", "Sensor");
 #endif
 #if LIGHT_DEVICE
     cJSON_AddStringToObject(pSubJson_Device,"product", "Light");
@@ -143,9 +143,12 @@ system_info_get(cJSON *pcjson, const char* pname )
  * Parameters   : pcjson -- A pointer to a JSON object
  * Returns      : result
 {"Response":{
-"status":0}} 
+"status":0}}
 *******************************************************************************/
-LOCAL int  
+extern int globalTemp;
+
+
+ LOCAL int
 switch_status_get(cJSON *pcjson, const char* pname )
 {
 
@@ -155,8 +158,8 @@ switch_status_get(cJSON *pcjson, const char* pname )
         return -1;
     }
     cJSON_AddItemToObject(pcjson, "response", pSubJson_response);
-    
-    cJSON_AddNumberToObject(pSubJson_response, "status", user_plug_get_status());
+
+    cJSON_AddNumberToObject(pSubJson_response, "temperature", globalTemp); //TODO:
 
     return 0;
 }
@@ -168,21 +171,21 @@ switch_status_get(cJSON *pcjson, const char* pname )
  {"Response":
  {"status":1 }}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 switch_status_set(const char *pValue)
 {
     cJSON * pJsonSub=NULL;
     cJSON * pJsonSub_status=NULL;
-    
+
     cJSON * pJson =  cJSON_Parse(pValue);
     if(NULL != pJson){
         pJsonSub = cJSON_GetObjectItem(pJson, "response");
     }
-    
+
     if(NULL != pJsonSub){
         pJsonSub_status = cJSON_GetObjectItem(pJsonSub, "status");
     }
-    
+
     if(NULL != pJsonSub_status){
         if(pJsonSub_status->type == cJSON_Number){
             user_plug_set_status(pJsonSub_status->valueint);
@@ -190,7 +193,7 @@ switch_status_set(const char *pValue)
             return 0;
         }
     }
-    
+
     if(NULL != pJson)cJSON_Delete(pJson);
     printf("switch_status_set fail\n");
     return -1;
@@ -211,10 +214,10 @@ PwmTree {
 "green":65530,
 "blue":62152
 }
-} 
+}
 *******************************************************************************/
 
-LOCAL int  
+LOCAL int
 light_status_get(cJSON *pcjson, const char* pname )
 {
 
@@ -243,7 +246,7 @@ light_status_get(cJSON *pcjson, const char* pname )
  * Returns      : result
 *******************************************************************************/
 
-LOCAL int  
+LOCAL int
 light_status_set(const char *pValue)
 {
     static uint32 r,g,b,cw,ww,period;
@@ -263,7 +266,7 @@ light_status_set(const char *pValue)
         printf("light_status_set cJSON_Parse fail\n");
         return -1;
     }
-    
+
     pJsonSub_rgb = cJSON_GetObjectItem(pJson, "rgb");
     if(NULL != pJsonSub_rgb){
         if(pJsonSub_rgb->type == cJSON_Object){
@@ -293,7 +296,7 @@ light_status_set(const char *pValue)
                 flag = 1;
                 printf("GetObjectItem green failed!\n");
             }
-            
+
             pJsonSub = cJSON_GetObjectItem(pJsonSub_rgb, "blue");
             if(NULL != pJsonSub){
                 if(pJsonSub->type == cJSON_Number){
@@ -318,7 +321,7 @@ light_status_set(const char *pValue)
             }else{
                 //printf("GetObjectItem no cwhite!\n");
             }
-            
+
             pJsonSub = cJSON_GetObjectItem(pJsonSub_rgb, "wwhite");
             if(NULL != pJsonSub){
                 if(pJsonSub->type == cJSON_Number){
@@ -333,7 +336,7 @@ light_status_set(const char *pValue)
 
         }
     }
-    
+
     pJsonSub_freq = cJSON_GetObjectItem(pJson, "period");
     if(NULL != pJsonSub_freq){
         if(pJsonSub_freq->type == cJSON_Number){
@@ -364,7 +367,7 @@ light_status_set(const char *pValue)
             if(light_sleep_flg==0){
                 /*entry sleep mode?*/
             }
-            
+
         }else{
             if(light_sleep_flg==1){
                 printf("modem sleep en\r\n");
@@ -372,10 +375,10 @@ light_status_set(const char *pValue)
                 light_sleep_flg =0;
             }
         }
-        
+
         light_set_aim(r,g,b,cw,ww,period);
     }
-    
+
     cJSON_Delete(pJson);
     return 0;
 }
@@ -384,45 +387,45 @@ light_status_set(const char *pValue)
 
 
 #if SENSOR_DEVICE
-LOCAL int  
+LOCAL int
 user_set_sleep(const char *pValue)
 {
     printf("user_set_sleep %s \n", pValue);
-    
+
     return 0;
 }
 #else
-LOCAL int  
+LOCAL int
 user_set_reboot(const char *pValue)
 {
     printf("user_set_reboot %s \n", pValue);
-    
+
     return 0;
 }
 #endif
 
 
-LOCAL int  
+LOCAL int
 system_status_reset(const char *pValue)
 {
     printf("system_status_reset %s \n", pValue);
-    
+
     return 0;
 }
 
-LOCAL int  
+LOCAL int
 user_upgrade_start(const char *pValue)
 {
     printf("user_upgrade_start %s \n", pValue);
-    
+
     return 0;
 }
 
-LOCAL int  
+LOCAL int
 user_upgrade_reset(const char *pValue)
 {
     printf("user_upgrade_reset %s \n", pValue);
-    
+
     return 0;
 }
 /******************************************************************************
@@ -431,7 +434,7 @@ user_upgrade_reset(const char *pValue)
  * Parameters   : arg -- Additional argument to pass to the function
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 restart_xms_cb(void *arg)
 {
     if (rstparm != NULL) {
@@ -483,7 +486,7 @@ restart_xms_cb(void *arg)
  * Parameters   : pcjson -- A pointer to a JSON object
  * Returns      : result
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 wifi_station_get(cJSON *pcjson)
 {
     struct ip_info ipconfig;
@@ -525,13 +528,13 @@ wifi_station_get(cJSON *pcjson)
  * Parameters   : pcjson -- A pointer to a JSON object
  * Returns      : result
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 wifi_softap_get(cJSON *pcjson)
 {
     struct ip_info ipconfig;
     uint8 buff[20];
     bzero(buff, sizeof(buff));
-    
+
     cJSON * pSubJson_Connect_Softap= cJSON_CreateObject();
     if(NULL == pSubJson_Connect_Softap){
         printf("pSubJson_Connect_Softap creat fail\n");
@@ -557,7 +560,7 @@ wifi_softap_get(cJSON *pcjson)
     cJSON_AddNumberToObject(pSubJson_Connect_Softap, "channel", ap_conf->channel);
     cJSON_AddStringToObject(pSubJson_Connect_Softap, "ssid", ap_conf->ssid);
     cJSON_AddStringToObject(pSubJson_Connect_Softap, "password", ap_conf->password);
-    
+
     switch (ap_conf->authmode) {
         case AUTH_OPEN:
             cJSON_AddStringToObject(pSubJson_Connect_Softap, "authmode", "OPEN");
@@ -595,7 +598,7 @@ wifi_softap_get(cJSON *pcjson)
 "Ipinfo_Softap":{"ip":"192.168.4.1","mask":"255.255.255.0","gw":"192.168.4.1"}}
 }}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 wifi_info_get(cJSON *pcjson,const char* pname)
 {
 
@@ -615,7 +618,7 @@ wifi_info_get(cJSON *pcjson,const char* pname)
         return -1;
     }
     cJSON_AddItemToObject(pSubJson_Response, "Station", pSubJson_Station);
-    
+
     cJSON * pSubJson_Softap= cJSON_CreateObject();
     if(NULL == pSubJson_Softap){
         printf("pSubJson_Softap creat fail\n");
@@ -650,7 +653,7 @@ wifi_info_get(cJSON *pcjson,const char* pname)
    {"authmode":"OPEN", "channel":6, "ssid":"IOT_SOFTAP","password":""}}}}
  * {"Request":{"Station":{"Connect_Station":{"token":"u6juyl9t6k4qdplgl7dg7m90x96264xrzse6mx1i"}}}}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 wifi_info_set(const char* pValue)
 {
     cJSON * pJson;
@@ -661,15 +664,15 @@ wifi_info_set(const char* pValue)
     cJSON * pJsonSub_Sub;
 
 //    user_esp_platform_set_connect_status(DEVICE_CONNECTING);
-    
+
     if (restart_xms != NULL) {
         os_timer_disarm(restart_xms);
     }
-    
+
     if (ap_conf == NULL) {
         ap_conf = (struct softap_config *)zalloc(sizeof(struct softap_config));
     }
-    
+
     if (sta_conf == NULL) {
         sta_conf = (struct station_config *)zalloc(sizeof(struct station_config));
     }
@@ -679,7 +682,7 @@ wifi_info_set(const char* pValue)
         printf("wifi_info_set cJSON_Parse fail\n");
         return -1;
     }
-    
+
     pJsonSub_request = cJSON_GetObjectItem(pJson, "Request");
     if(pJsonSub_request == NULL) {
         printf("cJSON_GetObjectItem pJsonSub_request fail\n");
@@ -695,7 +698,7 @@ wifi_info_set(const char* pValue)
         }
 
         pJsonSub_Sub = cJSON_GetObjectItem(pJsonSub_Connect_Station,"ssid");
-        if(NULL != pJsonSub_Sub){       
+        if(NULL != pJsonSub_Sub){
             if( strlen(pJsonSub_Sub->valuestring)<=32 )
                 memcpy(sta_conf->ssid, pJsonSub_Sub->valuestring, strlen(pJsonSub_Sub->valuestring));
             else
@@ -712,7 +715,7 @@ wifi_info_set(const char* pValue)
 
 #if ESP_PLATFORM
         pJsonSub_Sub = cJSON_GetObjectItem(pJsonSub_Connect_Station,"token");
-        if(NULL != pJsonSub_Sub){       
+        if(NULL != pJsonSub_Sub){
             user_esp_platform_set_token(pJsonSub_Sub->valuestring);
         }
 #endif
@@ -742,7 +745,7 @@ wifi_info_set(const char* pValue)
         /*
             printf("pJsonSub_Connect_Softap pJsonSub_Sub->password %s  len%d\n",
                 pJsonSub_Sub->valuestring, strlen(pJsonSub_Sub->valuestring));
-          */          
+          */
             if( strlen(pJsonSub_Sub->valuestring)<=64 )
                 memcpy(ap_conf->password, pJsonSub_Sub->valuestring, strlen(pJsonSub_Sub->valuestring));
             else
@@ -783,11 +786,11 @@ wifi_info_set(const char* pValue)
         rstparm = (rst_parm *)zalloc(sizeof(rst_parm));
     }
     rstparm->parmtype = WIFI;
-    
+
     if (sta_conf->ssid[0] != 0x00 || ap_conf->ssid[0] != 0x00) {
         ap_conf->ssid_hidden = 0;
         ap_conf->max_connection = 4;
-    
+
         if (restart_xms == NULL) {
             restart_xms = (os_timer_t *)malloc(sizeof(os_timer_t));
             if(NULL == restart_xms){
@@ -806,7 +809,7 @@ wifi_info_set(const char* pValue)
         ap_conf = NULL;
         rstparm =NULL;
     }
-    
+
     return 0;
 }
 
@@ -817,15 +820,15 @@ wifi_info_set(const char* pValue)
                 : total -- flag that send the total scanpage or not
  * Returns      : result
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 scan_result_output(cJSON *pcjson, bool total)
 {
-    int count=2;//default no more than 8 
+    int count=2;//default no more than 8
     u8 buff[20];
     LOCAL struct bss_info *bss;
     cJSON * pSubJson_page;
     char *pchar;
-    
+
     while((bss = STAILQ_FIRST(pscaninfo->pbss)) != NULL && count-- ){
 
         pSubJson_page= cJSON_CreateObject();
@@ -874,7 +877,7 @@ scan_result_output(cJSON *pcjson, bool total)
  * Parameters   : pcjson -- A pointer to a JSON object
  * Returns      : result
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 scan_info_get(cJSON *pcjson, const char* pname)
 {
 
@@ -914,7 +917,7 @@ scan_info_get(cJSON *pcjson, const char* pname)
 {"Status":{
 "status":3}}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 connect_status_get(cJSON *pcjson, const char* pname )
 {
 
@@ -923,7 +926,7 @@ connect_status_get(cJSON *pcjson, const char* pname )
         printf("pSubJson_Status creat fail\n");
         return -1;
     }
-    cJSON_AddItemToObject(pcjson, "Status", pSubJson_Status); 
+    cJSON_AddItemToObject(pcjson, "Status", pSubJson_Status);
 
 //    cJSON_AddNumberToObject(pSubJson_Status, "status", user_esp_platform_get_connect_status());
 
@@ -943,11 +946,11 @@ typedef struct {
 
 const EspCgiApiEnt espCgiApiNodes[]={
 #if PLUG_DEVICE
-    {"config", "switch", switch_status_get,switch_status_set},
+    {"config", "sensor", switch_status_get,switch_status_set},
 #elif LIGHT_DEVICE
     {"config", "light", light_status_get,light_status_set},
 #endif
-    
+
 #if SENSOR_DEVICE
     {"config", "sleep", NULL,user_set_sleep},
 #else
@@ -968,11 +971,11 @@ int   cgiEspApi(HttpdConnData *connData) {
     char *file=&connData->url[1]; //skip initial slash
     int len, i;
     int ret=0;
-    
+
     char *pchar = NULL;
     cJSON *pcjson = NULL;
     char *pbuf=(char*)zalloc(48);
-    
+
     httpdStartResponse(connData, 200);
 //  httpdHeader(connData, "Content-Type", "text/json");
     httpdHeader(connData, "Content-Type", "text/plain");
@@ -1000,14 +1003,14 @@ int   cgiEspApi(HttpdConnData *connData) {
             if(NULL != espCgiApiNodes[i].set){
                 espCgiApiNodes[i].set(connData->post->buff);
             }
-            
+
             //ToDo: Use result of json parsing code somehow
             len=sprintf(pbuf, "{\n \"status\": \"ok\"\n }\n");
             httpdSend(connData, pbuf, len);
-            
+
         } else {
             //Found, req is using GET
-        
+
             //printf("get cmd found %s\n",espCgiApiNodes[i].cmd);
             pcjson=cJSON_CreateObject();
             if(NULL == pcjson) {
@@ -1021,7 +1024,7 @@ int   cgiEspApi(HttpdConnData *connData) {
                 //printf("Resp %s\n", pchar);
                 httpdSend(connData, pchar, len);
             }
-            
+
             if(pcjson){
                 cJSON_Delete(pcjson);
             }
@@ -1038,4 +1041,3 @@ int   cgiEspApi(HttpdConnData *connData) {
     }
     return HTTPD_CGI_DONE;
 }
-

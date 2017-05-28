@@ -17,7 +17,7 @@ window.onload=function(e) {
         }
         plug_img.src = img_src;
     }
-    
+
     function status_get(){
         xhr.open("GET", "config?command=switch");
         xhr.onreadystatechange=function() {
@@ -37,10 +37,10 @@ window.onload=function(e) {
     function plug(status) {
         var status_num = 0;
         if(status) { status_num = 1; }
-        var pwmJson = {"response": {"status": status_num}};
+        var pwmJson = {"response": {"temperature": status_num}};
         if (sendInProgress) return;
         sendInProgress=true;
-        xhr.open("POST", "config?command=switch");
+        xhr.open("POST", "config?command=sensor");
         xhr.onreadystatechange=function() {
             if (xhr.readyState==4) {
                 sendInProgress=false;

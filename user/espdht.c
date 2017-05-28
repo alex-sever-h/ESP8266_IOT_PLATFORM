@@ -55,6 +55,8 @@ at_tcpclient_connect_cb(void *arg)
 
 ICACHE_FLASH_ATTR void  readDHT(void *arg);
 
+int globalTemp;
+
 static void ICACHE_FLASH_ATTR
 sendReading(float t, float h)
 {
@@ -84,6 +86,7 @@ sendReading(float t, float h)
 
     printf("readDHT %p Temp =  %d , Hum = %d \n", readDHT, (int)(t*100), (int)(h*100));
 
+    globalTemp = (int)(t*100);
 //    //we will use these in the connect callback..
 //    lastTemp = t;
 //    lastHum = h;

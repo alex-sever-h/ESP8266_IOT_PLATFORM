@@ -74,7 +74,7 @@ LOCAL uint32 dat_sumlength;//could be removed Jeremy
  * Returns      : result
 * { "status":"200", "user_bin":"userx.bin" }
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 user_binfo_get(cJSON *pcjson, const char* pname)
 {
     char string[32];
@@ -100,7 +100,7 @@ user_binfo_get(cJSON *pcjson, const char* pname)
 {"Version":{"hardware":"0.1","sdk_version":"1.1.2","iot_version":"v1.0.5t23701(a)"},
 "Device":{"product":"Plug","manufacturer":"Espressif Systems"}}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 system_info_get(cJSON *pcjson, const char* pname )
 {
     char string[32]={0};
@@ -111,7 +111,7 @@ system_info_get(cJSON *pcjson, const char* pname )
         return -1;
     }
     cJSON_AddItemToObject(pcjson, "Version", pSubJson_Version);
-    
+
     cJSON * pSubJson_Device = cJSON_CreateObject();
     if(NULL == pSubJson_Device){
         WS_DEBUG("pSubJson_Device creat fail\n");
@@ -128,7 +128,7 @@ system_info_get(cJSON *pcjson, const char* pname )
     sprintf(string,"%s%d.%d.%dt%d(%s)",VERSION_TYPE,IOT_VERSION_MAJOR,\
     IOT_VERSION_MINOR,IOT_VERSION_REVISION,device_type,UPGRADE_FALG);
     cJSON_AddStringToObject(pSubJson_Version,"iot_version",string);
-    
+
 
     cJSON_AddStringToObject(pSubJson_Device,"manufacture","Espressif Systems");
 #if SENSOR_DEVICE
@@ -139,7 +139,7 @@ system_info_get(cJSON *pcjson, const char* pname )
 #endif
 #endif
 #if PLUG_DEVICE
-    cJSON_AddStringToObject(pSubJson_Device,"product", "Plug");
+    cJSON_AddStringToObject(pSubJson_Device,"product", "Sensor");
 #endif
 #if LIGHT_DEVICE
 	cJSON_AddStringToObject(pSubJson_Device,"product", "Light");
@@ -159,7 +159,7 @@ system_info_get(cJSON *pcjson, const char* pname )
 {"Status":{
 "status":3}}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 connect_status_get(cJSON *pcjson, const char* pname )
 {
 
@@ -168,7 +168,7 @@ connect_status_get(cJSON *pcjson, const char* pname )
         WS_DEBUG("pSubJson_Status creat fail\n");
         return -1;
     }
-    cJSON_AddItemToObject(pcjson, "Status", pSubJson_Status); 
+    cJSON_AddItemToObject(pcjson, "Status", pSubJson_Status);
 
     cJSON_AddNumberToObject(pSubJson_Status, "status", user_esp_platform_get_connect_status());
 
@@ -182,9 +182,9 @@ connect_status_get(cJSON *pcjson, const char* pname )
  * Parameters   : pcjson -- A pointer to a JSON object
  * Returns      : result
 {"Response":{
-"status":0}} 
+"status":0}}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 switch_status_get(cJSON *pcjson, const char* pname )
 {
 
@@ -194,7 +194,7 @@ switch_status_get(cJSON *pcjson, const char* pname )
         return -1;
     }
     cJSON_AddItemToObject(pcjson, "response", pSubJson_response);
-    
+
     cJSON_AddNumberToObject(pSubJson_response, "status", user_plug_get_status());
 
     return 0;
@@ -207,21 +207,21 @@ switch_status_get(cJSON *pcjson, const char* pname )
  {"Response":
  {"status":1 }}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 switch_req_parse(const char *pValue)
 {
     cJSON * pJsonSub=NULL;
     cJSON * pJsonSub_status=NULL;
-    
+
     cJSON * pJson =  cJSON_Parse(pValue);
     if(NULL != pJson){
         pJsonSub = cJSON_GetObjectItem(pJson, "response");
     }
-    
+
     if(NULL != pJsonSub){
         pJsonSub_status = cJSON_GetObjectItem(pJsonSub, "status");
     }
-    
+
     if(NULL != pJsonSub_status){
         if(pJsonSub_status->type == cJSON_Number){
             WS_DEBUG("switch_status_set status %d d %d\n",pJsonSub_status->valueint);
@@ -230,7 +230,7 @@ switch_req_parse(const char *pValue)
             return 0;
         }
     }
-    
+
     if(NULL != pJson)cJSON_Delete(pJson);
     return -1;
 }
@@ -251,10 +251,10 @@ PwmTree {
 "bwhitelue":62152,
 "wwhite":62152
 }
-} 
+}
 *******************************************************************************/
 
-LOCAL int  
+LOCAL int
 light_status_get(cJSON *pcjson, const char* pname )
 {
 
@@ -283,7 +283,7 @@ light_status_get(cJSON *pcjson, const char* pname )
  * Returns      : result
 *******************************************************************************/
 
-LOCAL int  
+LOCAL int
 light_req_parse(const char *pValue)
 {
     static uint32 r,g,b,cw,ww,period;
@@ -303,7 +303,7 @@ light_req_parse(const char *pValue)
         printf("light_req_parse cJSON_Parse fail\n");
         return -1;
     }
-    
+
 	pJsonSub_rgb = cJSON_GetObjectItem(pJson, "rgb");
     if(NULL != pJsonSub_rgb){
     	if(pJsonSub_rgb->type == cJSON_Object){
@@ -333,7 +333,7 @@ light_req_parse(const char *pValue)
                 flag = 1;
                 WS_DEBUG("GetObjectItem green failed!\n");
             }
-    		
+
     		pJsonSub = cJSON_GetObjectItem(pJsonSub_rgb, "blue");
             if(NULL != pJsonSub){
         		if(pJsonSub->type == cJSON_Number){
@@ -359,7 +359,7 @@ light_req_parse(const char *pValue)
                 flag = 1;
                 WS_DEBUG("GetObjectItem cwhite failed!\n");
             }
-            
+
     		pJsonSub = cJSON_GetObjectItem(pJsonSub_rgb, "wwhite");
             if(NULL != pJsonSub){
         		if(pJsonSub->type == cJSON_Number){
@@ -375,7 +375,7 @@ light_req_parse(const char *pValue)
 
     	}
     }
-    
+
 	pJsonSub_freq = cJSON_GetObjectItem(pJson, "period");
     if(NULL != pJsonSub_freq){
     	if(pJsonSub_freq->type == cJSON_Number){
@@ -406,7 +406,7 @@ light_req_parse(const char *pValue)
             if(light_sleep_flg==0){
                 /*entry sleep mode?*/
             }
-            
+
         }else{
             if(light_sleep_flg==1){
                 WS_DEBUG("modem sleep en\r\n");
@@ -414,10 +414,10 @@ light_req_parse(const char *pValue)
                 light_sleep_flg =0;
             }
         }
-    	
+
         light_set_aim(r,g,b,cw,ww,period);
     }
-    
+
 	cJSON_Delete(pJson);
     return 0;
 }
@@ -430,7 +430,7 @@ light_req_parse(const char *pValue)
  * Parameters   : pcjson -- A pointer to a JSON object
  * Returns      : result
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 wifi_station_get(cJSON *pcjson)
 {
     struct ip_info ipconfig;
@@ -473,13 +473,13 @@ wifi_station_get(cJSON *pcjson)
  * Parameters   : pcjson -- A pointer to a JSON object
  * Returns      : result
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 wifi_softap_get(cJSON *pcjson)
 {
     struct ip_info ipconfig;
     uint8 pbuf[20];
     bzero(pbuf, sizeof(pbuf));
-    
+
     cJSON * pSubJson_Connect_Softap= cJSON_CreateObject();
     if(NULL == pSubJson_Connect_Softap){
         WS_DEBUG("pSubJson_Connect_Softap creat fail\n");
@@ -503,7 +503,7 @@ wifi_softap_get(cJSON *pcjson)
     cJSON_AddStringToObject(pSubJson_Ipinfo_Softap,"mask",pbuf);
     sprintf(pbuf, IPSTR, IP2STR(&ipconfig.gw));
     cJSON_AddStringToObject(pSubJson_Ipinfo_Softap,"gw",pbuf);
-    
+
     cJSON_AddNumberToObject(pSubJson_Connect_Softap, "channel", ap_conf->channel);
     cJSON_AddStringToObject(pSubJson_Connect_Softap, "ssid", ap_conf->ssid);
     cJSON_AddStringToObject(pSubJson_Connect_Softap, "password", ap_conf->password);
@@ -545,7 +545,7 @@ wifi_softap_get(cJSON *pcjson)
 "Ipinfo_Softap":{"ip":"192.168.4.1","mask":"255.255.255.0","gw":"192.168.4.1"}}
 }}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 wifi_info_get(cJSON *pcjson,const char* pname)
 {
 
@@ -562,7 +562,7 @@ wifi_info_get(cJSON *pcjson,const char* pname)
         return -1;
     }
     cJSON_AddItemToObject(pSubJson_Response, "Station", pSubJson_Station);
-    
+
     cJSON * pSubJson_Softap= cJSON_CreateObject();
     if(NULL == pSubJson_Softap){
         WS_DEBUG("pSubJson_Softap creat fail\n");
@@ -588,7 +588,7 @@ wifi_info_get(cJSON *pcjson,const char* pname)
    {"authmode":"OPEN", "channel":6, "ssid":"IOT_SOFTAP","password":""}}}}
  * {"Request":{"Station":{"Connect_Station":{"token":"u6juyl9t6k4qdplgl7dg7m90x96264xrzse6mx1i"}}}}
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 wifi_req_parse(char *pValue)
 {
 
@@ -598,13 +598,13 @@ wifi_req_parse(char *pValue)
     cJSON * pJsonSub_Connect_Station;
     cJSON * pJsonSub_Connect_Softap;
     cJSON * pJsonSub_Sub;
-    
+
     pJson =  cJSON_Parse(pValue);
     if(NULL == pJson){
         printf("wifi_req_parse cJSON_Parse fail\n");
         return -1;
     }
-    
+
     pJsonSub_request = cJSON_GetObjectItem(pJson, "Request");
     if(pJsonSub_request == NULL) {
         WS_DEBUG("cJSON_GetObjectItem pJsonSub_request fail\n");
@@ -618,15 +618,15 @@ wifi_req_parse(char *pValue)
             WS_DEBUG("cJSON_GetObjectItem Connect_Station fail\n");
             return -1;
         }
-        
+
         pJsonSub_Sub = cJSON_GetObjectItem(pJsonSub_Connect_Station,"ssid");
-        if(NULL != pJsonSub_Sub){       
+        if(NULL != pJsonSub_Sub){
              if(  strlen(pJsonSub_Sub->valuestring) <= 32 )
                 memcpy(sta_conf->ssid, pJsonSub_Sub->valuestring, strlen(pJsonSub_Sub->valuestring));
             else
                 os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, strlen(pJsonSub_Sub->valuestring) );
         }
-        
+
         pJsonSub_Sub = cJSON_GetObjectItem(pJsonSub_Connect_Station,"password");
         if(NULL != pJsonSub_Sub){
              if(  strlen(pJsonSub_Sub->valuestring) <= 64 )
@@ -634,10 +634,10 @@ wifi_req_parse(char *pValue)
             else
                 os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, strlen(pJsonSub_Sub->valuestring) );
         }
-        
+
 #if ESP_PLATFORM
         pJsonSub_Sub = cJSON_GetObjectItem(pJsonSub_Connect_Station,"token");
-        if(NULL != pJsonSub_Sub){       
+        if(NULL != pJsonSub_Sub){
             user_esp_platform_set_token(pJsonSub_Sub->valuestring);
         }
 #endif
@@ -650,36 +650,36 @@ wifi_req_parse(char *pValue)
             WS_DEBUG("cJSON_GetObjectItem Connect_Softap fail!\n");
             return -1;
         }
-        
+
         pJsonSub_Sub = cJSON_GetObjectItem(pJsonSub_Connect_Softap,"ssid");
         if(NULL != pJsonSub_Sub){
             WS_DEBUG("pJsonSub_Connect_Softap pJsonSub_Sub->ssid %s  len%d\n",
                 pJsonSub_Sub->valuestring, strlen(pJsonSub_Sub->valuestring));
-            
+
             if(  strlen(pJsonSub_Sub->valuestring) <= 32 )
                 memcpy(ap_conf->ssid, pJsonSub_Sub->valuestring, strlen(pJsonSub_Sub->valuestring));
             else
                 os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, strlen(pJsonSub_Sub->valuestring) );
         }
-        
+
         pJsonSub_Sub = cJSON_GetObjectItem(pJsonSub_Connect_Softap,"password");
         if(NULL != pJsonSub_Sub){
             WS_DEBUG("pJsonSub_Connect_Softap pJsonSub_Sub->password %s  len%d\n",
                 pJsonSub_Sub->valuestring, strlen(pJsonSub_Sub->valuestring));
-            
+
             if(  strlen(pJsonSub_Sub->valuestring) <= 64 )
                 memcpy(ap_conf->password, pJsonSub_Sub->valuestring, strlen(pJsonSub_Sub->valuestring));
             else
                 os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, strlen(pJsonSub_Sub->valuestring) );
-            
+
         }
-        
+
         pJsonSub_Sub = cJSON_GetObjectItem(pJsonSub_Connect_Softap,"channel");
         if(NULL != pJsonSub_Sub){
             WS_DEBUG("pJsonSub_Connect_Softap channel %d\n",pJsonSub_Sub->valueint);
             ap_conf->channel = pJsonSub_Sub->valueint;
         }
-        
+
         pJsonSub_Sub = cJSON_GetObjectItem(pJsonSub_Connect_Softap,"authmode");
         if(NULL != pJsonSub_Sub){
             if (strcmp(pJsonSub_Sub->valuestring, "OPEN") == 0) {
@@ -695,7 +695,7 @@ wifi_req_parse(char *pValue)
             }
             WS_DEBUG("pJsonSub_Connect_Softap ap_conf->authmode %d\n",ap_conf->authmode);
         }
-        
+
     }
 
     cJSON_Delete(pJson);
@@ -708,15 +708,15 @@ wifi_req_parse(char *pValue)
                 : total -- flag that send the total scanpage or not
  * Returns      : result
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 scan_result_output(cJSON *pcjson, bool total)
 {
-    int count=2;//default no more than 8 
+    int count=2;//default no more than 8
     u8 buffer[32];
     LOCAL struct bss_info *bss;
     cJSON * pSubJson_page;
     char *pchar;
-    
+
     while((bss = STAILQ_FIRST(pscaninfo->pbss)) != NULL && count-- ){
         printf("add page to array %d \n",count);
         pSubJson_page= cJSON_CreateObject();
@@ -765,7 +765,7 @@ scan_result_output(cJSON *pcjson, bool total)
  * Parameters   : pcjson -- A pointer to a JSON object
  * Returns      : result
 *******************************************************************************/
-LOCAL int  
+LOCAL int
 scan_info_get(cJSON *pcjson,const char* pname)
 {
 
@@ -804,7 +804,7 @@ scan_info_get(cJSON *pcjson,const char* pname)
  *                purl_frame -- the result of parsing the url
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 parse_url(char *precv, URL_Frame *purl_frame)
 {
     char *str = NULL;
@@ -840,34 +840,34 @@ parse_url(char *precv, URL_Frame *purl_frame)
 
         if (str != NULL) {
             length = str - pbuffer;
-            
+
             if(  length <= 12 )
                 memcpy(purl_frame->pSelect, pbuffer, length);
             else
                 os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, length );
-            
+
             str ++;
             pbuffer = (char *)strstr(str, "=");
 
             if (pbuffer != NULL) {
                 length = pbuffer - str;
-                
+
             if(  length <= 12 )
                 memcpy(purl_frame->pCommand, str, length);
             else
                 os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, length );
-                
+
                 pbuffer ++;
                 str = (char *)strstr(pbuffer, "&");
 
                 if (str != NULL) {
                     length = str - pbuffer;
-                    
+
                     if(  length <= 12 )
                         memcpy(purl_frame->pFilename, pbuffer, length);
                     else
                         os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, length );
-                    
+
                 } else {
                     str = (char *)strstr(pbuffer, " HTTP");
 
@@ -878,7 +878,7 @@ parse_url(char *precv, URL_Frame *purl_frame)
                             memcpy(purl_frame->pFilename, pbuffer, length);
                         else
                             os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, length );
-                        
+
                     }
                 }
             }
@@ -898,7 +898,7 @@ parse_url(char *precv, URL_Frame *purl_frame)
  * Returns      : none
 *******************************************************************************/
 
-LOCAL bool  
+LOCAL bool
 save_data(char *precv, uint16 length)
 {
     bool flag = false;
@@ -909,27 +909,27 @@ save_data(char *precv, uint16 length)
     static uint32 totallength = 0;
 
     u32 precvlen = length;
-    
+
     ptemp = (char *)strstr(precv, "\r\n\r\n");
-    
+
     if (ptemp != NULL) {
         length -= ptemp - precv;
         length -= 4;
         totallength += length;
         headlength = ptemp - precv + 4;
         pdata = (char *)strstr(precv, "Content-Length: ");
-        
+
         if (pdata != NULL) {
             pdata += 16;
             precvbuffer = (char *)strstr(pdata, "\r\n");
 
             if (precvbuffer != NULL) {
-                
+
                 if(  (precvbuffer - pdata) <= 10 )
                     memcpy(length_buf, pdata, precvbuffer - pdata);
                 else
                     os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, (precvbuffer - pdata) );
-                
+
                 dat_sumlength = atoi(length_buf);
             }
         } else {
@@ -939,7 +939,7 @@ save_data(char *precv, uint16 length)
                 return false;
             }
         }
-        
+
         if ((dat_sumlength + headlength) >= 1024) {
             precvbuffer = (char *)zalloc(headlength + 1);
             memcpy(precvbuffer, precv, headlength + 1);
@@ -948,7 +948,7 @@ save_data(char *precv, uint16 length)
             //printf("precvlen %d precvbuffer 0x%x  datalen%d\n",precvlen,precvbuffer,(dat_sumlength + headlength + 1));
             memcpy(precvbuffer, precv, precvlen);
         }
-        
+
     } else {
         if (precvbuffer != NULL) {
             totallength += length;
@@ -975,7 +975,7 @@ save_data(char *precv, uint16 length)
                 : length --length of the packet
  * Returns      : none
 *******************************************************************************/
-LOCAL bool  
+LOCAL bool
 check_data(char *precv, uint16 length)
 {
     char length_buf[10] = {0};
@@ -984,7 +984,7 @@ check_data(char *precv, uint16 length)
     char *tmp_precvbuffer;
     uint16 tmp_length = length;
     uint32 tmp_totallength = 0;
-    
+
     ptemp = (char *)strstr(precv, "\r\n\r\n");
 
     if (ptemp != NULL) {
@@ -994,22 +994,22 @@ check_data(char *precv, uint16 length)
         tmp_totallength += tmp_length;
 
         pdata = (char *)strstr(precv, "Content-Length: ");
-        
+
         if (pdata != NULL){
             pdata += 16;
             tmp_precvbuffer = (char *)strstr(pdata, "\r\n");
-            
+
             if (tmp_precvbuffer != NULL){
                 WS_DEBUG(" tmp_precvbuffer 0x%x pdata 0x%x ",tmp_precvbuffer,pdata);
-                
+
                 if(  (tmp_precvbuffer - pdata) <= 10 )
                     memcpy(length_buf, pdata, tmp_precvbuffer - pdata);
                 else
                     os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, (tmp_precvbuffer - pdata) );
-                
+
                 dat_sumlength = atoi(length_buf);
                 WS_DEBUG("A_dat:%u,tot:%u,lenght:%u\n",dat_sumlength,tmp_totallength,tmp_length);
-                
+
                 if(dat_sumlength != tmp_totallength){
                     return false;
                 }
@@ -1025,14 +1025,14 @@ check_data(char *precv, uint16 length)
  * Parameters   : arg -- Additional argument to pass to the function
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 restart_10ms_cb(void *arg) // Jeremy.L
 {
     if (rstparm != NULL && rstparm->pconnpara != NULL) {
         switch (rstparm->parmtype) {
             case WIFI:
                     if (sta_conf->ssid[0] != 0x00) {
-                        
+
                         printf("restart_10ms_cb set sta_conf noreboot\n");
                         wifi_station_set_config(sta_conf);
                         wifi_station_disconnect();
@@ -1088,14 +1088,14 @@ restart_10ms_cb(void *arg) // Jeremy.L
  *                psend -- The send data
  * Returns      :
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 data_send(struct single_conn_param *psingle_conn_param, bool responseOK, char *psend)
 {
     uint16 length = 0;
     char *pbuf = NULL;
     char httphead[256]; //jeremy
     memset(httphead, 0, 256);
-    
+
     if (responseOK) {
         sprintf(httphead,
                    "HTTP/1.0 200 OK\r\nContent-Length: %d\r\nServer: lwIP/1.4.0\r\n",
@@ -1109,12 +1109,12 @@ data_send(struct single_conn_param *psingle_conn_param, bool responseOK, char *p
             pbuf = (char *)zalloc(length + 1);
             memcpy(pbuf, httphead, strlen(httphead));
             memcpy(pbuf + strlen(httphead), psend, strlen(psend));
-            
+
         } else {
             sprintf(httphead + strlen(httphead), "\n");
             length = strlen(httphead);
         }
-        
+
     } else {
         sprintf(httphead, "HTTP/1.0 400 BadRequest\r\n\
 Content-Length: 0\r\nServer: lwIP/1.4.0\r\n\n");
@@ -1138,7 +1138,7 @@ Content-Length: 0\r\nServer: lwIP/1.4.0\r\n\n");
         write(psingle_conn_param->sock_fd, httphead, length);
 #endif
     }
-    
+
     if (pbuf) {
         free(pbuf);
         pbuf = NULL;
@@ -1153,7 +1153,7 @@ Content-Length: 0\r\nServer: lwIP/1.4.0\r\n\n");
  *                ParmType -- json format type
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 json_send(struct single_conn_param *psingle_conn_param, ParmType ParmType)
 {
     char *pbuf;
@@ -1177,7 +1177,7 @@ json_send(struct single_conn_param *psingle_conn_param, ParmType ParmType)
 #if PLUG_DEVICE
 
         case SWITCH_STATUS:
-            ret=switch_status_get(pcjson,"switch");
+            ret=switch_status_get(pcjson,"sensor");
             break;
 #endif
         case INFOMATION:
@@ -1210,12 +1210,12 @@ json_send(struct single_conn_param *psingle_conn_param, ParmType ParmType)
                 pbuf = (char *)zalloc(100);
                 pscaninfo->page_sn = 0;
                 sprintf(pbuf, "{\n\"successful\": false,\n\"meessage\": \"repeated page\"\n}");
-                
+
             } else if (pscaninfo->data_cnt > scannum) {
                 pbuf = (char *)zalloc(100);
                 pscaninfo->data_cnt -= 8;
                 sprintf(pbuf, "{\n\"successful\": false,\n\"meessage\": \"error page\"\n}");
-                
+
             } else {
                 pscaninfo->data_cnt += 8;
                 pscaninfo->page_sn = pscaninfo->pagenum;
@@ -1230,7 +1230,7 @@ json_send(struct single_conn_param *psingle_conn_param, ParmType ParmType)
     }
 
     if(ret == 0){
-        
+
         if(pbuf == NULL){
         pbuf = cJSON_Print(pcjson);
         }
@@ -1249,7 +1249,7 @@ json_send(struct single_conn_param *psingle_conn_param, ParmType ParmType)
  *                responseOK --  true or false
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 response_send(struct single_conn_param *psingle_conn_param, bool responseOK)
 {
     data_send(psingle_conn_param, responseOK, NULL);
@@ -1288,23 +1288,23 @@ LOCAL void   json_scan_cb(void *arg, STATUS status)
         goto error_handle;
     }
     cJSON_AddItemToObject(pJson, "Response", pSubJson_Response);
-    
+
     cJSON_AddNumberToObject(pJson, "TotalPage", pscaninfo->totalpage);
-    
+
 /*
     cJSON * pSubJson_Arry = cJSON_CreateArray();
     if(NULL == pSubJson_Arry){
         WS_DEBUG("pSubJson_Arry creat fail\n");
         goto error_handle;
     }
-    cJSON_AddItemToObject(pSubJson_Response, "TotalPage", pSubJson_Arry); 
+    cJSON_AddItemToObject(pSubJson_Response, "TotalPage", pSubJson_Arry);
 
     if(scan_result_output(pSubJson_Arry, 0) != 0){ //get total scan page to arry
         WS_DEBUG("pSubJson_Arry get scan page fail\n");
         goto error_handle;
     }
 */
-    
+
     pbuf = cJSON_Print(pJson);
     printf("\n %s \r\n", pbuf);
     data_send(pscaninfo->psingle_conn_param, true, pbuf);
@@ -1312,7 +1312,7 @@ LOCAL void   json_scan_cb(void *arg, STATUS status)
 error_handle:
     cJSON_Delete(pJson);
     if(pbuf != NULL) free(pbuf);
-    
+
 }
 
 /******************************************************************************
@@ -1321,18 +1321,18 @@ error_handle:
  * Parameters   : sock_fd--socket handler
  * Returns      : none
 *******************************************************************************/
-void  
+void
 upgrade_check_func(struct single_conn_param *psingle_conn_param)
 {
 
     os_timer_disarm(&upgrade_check_timer);
     if(system_upgrade_flag_check() == UPGRADE_FLAG_START) {
-        
+
         WS_DEBUG("local upgrade failed\n");
         response_send(psingle_conn_param, false);
         system_upgrade_deinit();
         system_upgrade_flag_set(UPGRADE_FLAG_IDLE);
-        
+
     } else if( system_upgrade_flag_check() == UPGRADE_FLAG_FINISH ) {
         WS_DEBUG("local upgrade success\n");
         response_send(psingle_conn_param, true);
@@ -1346,7 +1346,7 @@ upgrade_check_func(struct single_conn_param *psingle_conn_param)
  * Parameters   : void
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 local_upgrade_deinit(void)
 {
     if (system_upgrade_flag_check() != UPGRADE_FLAG_START) {
@@ -1362,7 +1362,7 @@ local_upgrade_deinit(void)
  *                length -- The length of upgrade data
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 local_upgrade_download(struct single_conn_param *psingle_conn_param,char *pusrdata, unsigned short length)
 {
     char *ptr = NULL;
@@ -1381,12 +1381,12 @@ local_upgrade_download(struct single_conn_param *psingle_conn_param,char *pusrda
 
             if (ptmp2 != NULL) {
                 memset(lengthbuffer, 0, sizeof(lengthbuffer));
-                
+
                 if(  (ptmp2 - ptr) <= 32 )
                     memcpy(lengthbuffer, ptr, ptmp2 - ptr);
                 else
                     os_printf("ERR:arr_overflow,%u,%d\n",__LINE__, (ptmp2 - ptr) );
-                
+
                 sumlength = atoi(lengthbuffer);
                 printf("Userbin sumlength %dB\n", sumlength);
             } else {
@@ -1427,12 +1427,12 @@ local_upgrade_download(struct single_conn_param *psingle_conn_param,char *pusrda
  * Parameters   : index -- webserver connection index;
  * Returns      : none
 *******************************************************************************/
-LOCAL  
+LOCAL
 void webserver_conn_watcher(struct single_conn_param * psingle_conn)
 {
     os_timer_disarm(&psingle_conn->stop_watch);
     psingle_conn->timeout = 1;
-    
+
     WS_DEBUG("webserver watcher sock_fd %d timeout!\n",psingle_conn->sock_fd);
 }
 
@@ -1444,7 +1444,7 @@ void webserver_conn_watcher(struct single_conn_param * psingle_conn)
  *                length -- The length of received data
  * Returns      : none
 *******************************************************************************/
-LOCAL void  
+LOCAL void
 webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *pusrdata, unsigned short length)
 {
     URL_Frame *pURL_Frame = NULL;
@@ -1470,13 +1470,13 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                 WS_DEBUG("We have a GET request.\n");
                 if (strcmp(pURL_Frame->pSelect, "client") == 0 &&
                         strcmp(pURL_Frame->pCommand, "command") == 0) {
-                        
+
                     if (strcmp(pURL_Frame->pFilename, "info") == 0) {
                         json_send(psingle_conn_param, INFOMATION);
-                        
+
                     }else if (strcmp(pURL_Frame->pFilename, "status") == 0) {
                         json_send(psingle_conn_param, CONNECT_STATUS);
-                        
+
                     } else if (strcmp(pURL_Frame->pFilename, "scan") == 0) {
                         char *pstrstr = NULL;
                         pstrstr = (char *)strstr(pusrdata, "&");
@@ -1490,7 +1490,7 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                             pscaninfo->page_sn = 0;
                             pscaninfo->data_cnt = 0;
                             wifi_station_scan(NULL, json_scan_cb);
-                            
+
                         } else {
                             pstrstr ++;
                             if (strncmp(pstrstr, "page", 4) == 0) {
@@ -1511,11 +1511,11 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                                 response_send(psingle_conn_param, false);
                             }
                         }
-                    } 
+                    }
                     else {
                         response_send(psingle_conn_param, false);
                     }
-                } 
+                }
 
                 else if (strcmp(pURL_Frame->pSelect, "config") == 0 &&
                            strcmp(pURL_Frame->pCommand, "command") == 0) {
@@ -1529,7 +1529,7 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                         ap_conf = NULL;
                     }
 #if PLUG_DEVICE
-                    else if (strcmp(pURL_Frame->pFilename, "switch") == 0) {
+                    else if (strcmp(pURL_Frame->pFilename, "sensor") == 0) {
                         json_send(psingle_conn_param, SWITCH_STATUS);
                     }
 #endif
@@ -1544,7 +1544,7 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                     } else {
                         response_send(psingle_conn_param, false);
                     }
-                } 
+                }
 
                 else if (strcmp(pURL_Frame->pSelect, "upgrade") == 0 &&
                         strcmp(pURL_Frame->pCommand, "command") == 0) {
@@ -1569,9 +1569,9 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                 if (strcmp(pURL_Frame->pSelect, "config") == 0 &&
                         strcmp(pURL_Frame->pCommand, "command") == 0) {
 #if SENSOR_DEVICE
-                    if (strcmp(pURL_Frame->pFilename, "sleep") == 0) 
+                    if (strcmp(pURL_Frame->pFilename, "sleep") == 0)
 #else
-                    if (strcmp(pURL_Frame->pFilename, "reboot") == 0) 
+                    if (strcmp(pURL_Frame->pFilename, "reboot") == 0)
 #endif
                     {
                         if (pParseBuffer != NULL) {
@@ -1594,7 +1594,7 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                                     printf(">>>recvdata_process,memory exhausted, check it\n");
                                 }
                             }
-                            
+
                             os_timer_disarm(restart_10ms);
                             os_timer_setfn(restart_10ms, (os_timer_func_t *)restart_10ms_cb, NULL);
                             os_timer_arm(restart_10ms, 10, 0);  // delay 10ms, then do
@@ -1603,7 +1603,7 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                         } else {
                             response_send(psingle_conn_param, false);
                         }
-                    } 
+                    }
                     else if (strcmp(pURL_Frame->pFilename, "wifi") == 0) {
                         if (pParseBuffer != NULL) {
                             user_esp_platform_set_connect_status(DEVICE_CONNECTING);
@@ -1652,13 +1652,13 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                                 rstparm =NULL;
                             }
                             response_send(psingle_conn_param, true);
-                            
+
                         } else {
                             response_send(psingle_conn_param, false);
                         }
                     }
 #if PLUG_DEVICE
-                    else if (strcmp(pURL_Frame->pFilename, "switch") == 0) {
+                    else if (strcmp(pURL_Frame->pFilename, "sensor") == 0) {
                         if (pParseBuffer != NULL) {
                             switch_req_parse(pParseBuffer);
                             response_send(psingle_conn_param, true);
@@ -1672,7 +1672,7 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                     else if (strcmp(pURL_Frame->pFilename, "light") == 0) {
                         if (pParseBuffer != NULL) {
 							light_req_parse(pParseBuffer);
-							
+
                             if(PostCmdNeeRsp == 1)
                                 response_send(psingle_conn_param, true);
                         } else {
@@ -1702,12 +1702,12 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                         os_timer_disarm(&upgrade_check_timer);
                         os_timer_setfn(&upgrade_check_timer, (os_timer_func_t *)upgrade_check_func, psingle_conn_param);
                         os_timer_arm(&upgrade_check_timer, 120000, 0);
-                    } 
+                    }
                     else if (strcmp(pURL_Frame->pFilename, "reset") == 0) {
                         response_send(psingle_conn_param, true);
                         WS_DEBUG("local upgrade reboot\n");
                         system_upgrade_reboot();
-                    } 
+                    }
                     else {
                         response_send(psingle_conn_param, false);
                     }
@@ -1716,13 +1716,13 @@ webserver_recvdata_process(struct single_conn_param *psingle_conn_param, char *p
                 }
                  break;
         }
-        
+
         temp_exit:
         if (precvbuffer != NULL){
             free(precvbuffer);
             precvbuffer = NULL;
         }
-        
+
         if(pURL_Frame != NULL){
             free(pURL_Frame);
             pURL_Frame = NULL;
@@ -1797,21 +1797,21 @@ static void   display_cipher(SSL *ssl)
 
 /******************************************************************************
  * FunctionName : webserver_recv_thread
- * Description  : recieve and process data form client 
+ * Description  : recieve and process data form client
  * Parameters   : noe
  * Returns      : none
 *******************************************************************************/
 #define RECV_BUF_SIZE 2048
-LOCAL void   
+LOCAL void
  webserver_recv_thread(void *pvParameters)
 {
     int ret;
     u8  index;
-    
+
     int stack_counter=0;
     bool ValueFromReceive=FALSE;
     portBASE_TYPE xStatus;
-    
+
     u32 maxfdp = 0;
     fd_set readset;
     struct timeval timeout;
@@ -1827,14 +1827,14 @@ LOCAL void
     u8  quiet = FALSE;
     u8 *read_buf = NULL;
     SSL_CTX *ssl_ctx = NULL;
-    
+
     if ((ssl_ctx = ssl_ctx_new(SSL_DISPLAY_CERTS, SSL_DEFAULT_SVR_SESS)) == NULL) {
         printf("Error: Server context is invalid\n");
     }
 #endif
 
     while(1){
-        
+
         xStatus = xQueueReceive(RCVQueueStop,&ValueFromReceive,0);
         if ( pdPASS == xStatus && TRUE == ValueFromReceive){
             WS_DEBUG("webserver_recv_thread rcv exit signal!\n");
@@ -1852,9 +1852,9 @@ LOCAL void
         FD_ZERO(&readset);
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
-        
+
         for(index=0; index < MAX_CLIENT_NUMBER; index++){
-            //find all valid handle 
+            //find all valid handle
             if(pconnections->single_conn[index]->sock_fd >= 0){
                 FD_SET(pconnections->single_conn[index]->sock_fd, &readset);
                 maxfdp =max(pconnections->single_conn[index]->sock_fd, maxfdp);
@@ -1864,7 +1864,7 @@ LOCAL void
         //polling all exist client handle
         ret = select(maxfdp+1, &readset, NULL, NULL, &timeout);
         if(ret > 0){
-            
+
 #ifdef SERVER_SSL_ENABLE
 
             for(index=0; index < MAX_CLIENT_NUMBER; index++){
@@ -1873,11 +1873,11 @@ LOCAL void
                 {
                     /*stop the sock handle watchout timer */
                     os_timer_disarm((os_timer_t *)&pconnections->single_conn[index]->stop_watch);
-                
+
                     if(NULL == pconnections->single_conn[index]->ssl){
                         pconnections->single_conn[index]->ssl = ssl_server_new(ssl_ctx, pconnections->single_conn[index]->sock_fd);
                     }
-                    
+
                     if ((ret = ssl_read(pconnections->single_conn[index]->ssl, &read_buf)) == SSL_OK) {
                         /* in the middle of doing a handshake */
                         if (ssl_handshake_status(pconnections->single_conn[index]->ssl) == SSL_OK) {
@@ -1889,20 +1889,20 @@ LOCAL void
                             }
                         }
                     }
-                    
-                    if (ret > SSL_OK) {  
+
+                    if (ret > SSL_OK) {
                         WS_DEBUG("webserver_recv_thread recv and process sockfd %d!\n",pconnections->single_conn[index]->sock_fd);
                         webserver_recvdata_process(pconnections->single_conn[index],read_buf,ret);
 
                         /*restart the sock handle watchout timer */
                         os_timer_setfn((os_timer_t *)&pconnections->single_conn[index]->stop_watch, (os_timer_func_t *)webserver_conn_watcher, pconnections->single_conn[index]);
                         os_timer_arm((os_timer_t *)&pconnections->single_conn[index]->stop_watch, STOP_TIMER, 0);
-                        
+
                     } else if (ret == SSL_CLOSE_NOTIFY) {
                         WS_DEBUG("shutting down SSL\n");
-                        
+
                     } else if (ret < SSL_OK) {
-                    
+
                         WS_DEBUG("webserver_recv_thread CONNECTION CLOSED index %d !\n",index);
                         ssl_free(pconnections->single_conn[index]->ssl);
                         close(pconnections->single_conn[index]->sock_fd);
@@ -1913,7 +1913,7 @@ LOCAL void
                 }
                 /* IF this handle there is no data/event aviliable, check the timeout flag*/
                 else if(pconnections->single_conn[index]->timeout == 1){
-                
+
                     WS_DEBUG("webserver_recv_thread index %d timeout,close!\n",index);
                     ssl_free(pconnections->single_conn[index]->ssl);
                     close(pconnections->single_conn[index]->sock_fd);
@@ -1922,7 +1922,7 @@ LOCAL void
                     pconnections->conn_num--;
                 }
             }
-                
+
 #else
             for(index=0; index < MAX_CLIENT_NUMBER; index++){
                 /* IF this handle there is data/event aviliable, recive it*/
@@ -1939,7 +1939,7 @@ LOCAL void
                         struct sockaddr_in *piname;
                         int len = sizeof(name);
                         getpeername(pconnections->single_conn[index]->sock_fd, &name, (socklen_t *)&len);
-                        piname  = (struct sockaddr_in *)&name;      
+                        piname  = (struct sockaddr_in *)&name;
 */
                         WS_DEBUG("webserver recv sockfd %d\n",pconnections->single_conn[index]->sock_fd);
                         webserver_recvdata_process(pconnections->single_conn[index],precvbuf,ret);
@@ -1947,16 +1947,16 @@ LOCAL void
                         /*restart the sock handle watchout timer */
                         os_timer_setfn((os_timer_t *)&pconnections->single_conn[index]->stop_watch, (os_timer_func_t *)webserver_conn_watcher, pconnections->single_conn[index]);
                         os_timer_arm((os_timer_t *)&pconnections->single_conn[index]->stop_watch, STOP_TIMER, 0);
-//                      printf(">>> heapsize %d\n",system_get_free_heap_size());    
+//                      printf(">>> heapsize %d\n",system_get_free_heap_size());
                     }else{
                         //recv error,connection close
                         WS_DEBUG("webserver close sockfd %d !\n",pconnections->single_conn[index]->sock_fd);
                         close(pconnections->single_conn[index]->sock_fd);
                         pconnections->single_conn[index]->sock_fd = -1;
                         pconnections->conn_num--;
-                      
+
                     }
-                    
+
                 }
                 /* IF this handle there is no data/event aviliable, check the status*/
                 else if(pconnections->single_conn[index]->timeout == 1){
@@ -1968,22 +1968,22 @@ LOCAL void
                 }
             }
 #endif
-            
+
         }else if(ret == -1){
-            //select timerout out, wait again. 
+            //select timerout out, wait again.
             WS_DEBUG("##WS select timeout##\n");
         }
-        
+
         /*for develop test only*/
         if(stack_counter++ ==1){
             stack_counter=0;
             WS_DEBUG("webserver_recv_thread %d word left\n",uxTaskGetStackHighWaterMark(NULL));
         }
-        
+
     }
 
     for(index=0; index < MAX_CLIENT_NUMBER && pconnections->conn_num; index++){
-        //find all valid handle 
+        //find all valid handle
         if(pconnections->single_conn[index]->sock_fd >= 0){
             os_timer_disarm((os_timer_t *)&pconnections->single_conn[index]->stop_watch);
 #ifdef SERVER_SSL_ENABLE
@@ -1993,7 +1993,7 @@ LOCAL void
             pconnections->conn_num --;
         }
     }
-    
+
 #ifdef SERVER_SSL_ENABLE
     ssl_ctx_free(ssl_ctx);
 #endif
@@ -2010,7 +2010,7 @@ void   webserver_recv_task_start(struct conn_param* pconnections)
 {
     if (RCVQueueStop == NULL)
         RCVQueueStop = xQueueCreate(1,1);
-    
+
     if (RCVQueueStop != NULL){
         sys_thread_new("websrecv_thread", webserver_recv_thread, pconnections, 512, 6);//1024, 704 left 320 used
     }
@@ -2042,7 +2042,7 @@ sint8   webserver_recv_task_stop(void)
 LOCAL   multi_conn_init(void)
 {
     u8 index;
-    
+
     for(index=0; index < MAX_CLIENT_NUMBER; index++){
         single_conn[index] = (struct single_conn_param *)zalloc(sizeof(struct single_conn_param));
         single_conn[index]->sock_fd = -1;
@@ -2062,7 +2062,7 @@ LOCAL   multi_conn_init(void)
  * Parameters   : null
  * Returns      : none
 *******************************************************************************/
-LOCAL void   
+LOCAL void
 user_webserver_task(void *pvParameters)
 {
     int32 listenfd;
@@ -2070,7 +2070,7 @@ user_webserver_task(void *pvParameters)
     int32 len;
     int32 ret;
     u8    index;
-    
+
     struct ip_info ipconfig;
     struct conn_param* pconnections;
     struct sockaddr_in server_addr,remote_addr;
@@ -2079,12 +2079,12 @@ user_webserver_task(void *pvParameters)
     bool ValueFromReceive = false;
 
     int stack_counter=0;
-    
+
     /* Construct local address structure */
     memset(&server_addr, 0, sizeof(server_addr)); /* Zero out structure */
     server_addr.sin_family = AF_INET;            /* Internet address family */
     server_addr.sin_addr.s_addr = INADDR_ANY;   /* Any incoming interface */
-    server_addr.sin_len = sizeof(server_addr);  
+    server_addr.sin_len = sizeof(server_addr);
 #ifdef SERVER_SSL_ENABLE
     server_addr.sin_port = htons(WEB_SERVER_SSL_PORT); /* Local SSL port */
 #else
@@ -2116,13 +2116,13 @@ user_webserver_task(void *pvParameters)
             WS_DEBUG("C > user_webserver_task failed to set listen queue!\n");
             vTaskDelay(1000/portTICK_RATE_MS);
         }
-        
+
     }while(ret != 0);
-    
+
     /*initialize as connections set*/
     multi_conn_init();
     pconnections = &connections;
-    
+
     /*start a task to recv data from client*/
     webserver_recv_task_start(pconnections);
 
@@ -2171,7 +2171,7 @@ user_webserver_task(void *pvParameters)
         }
 
     }
-    
+
     close(listenfd);
     vQueueDelete(QueueStop);
     QueueStop = NULL;
